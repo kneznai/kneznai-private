@@ -5,3 +5,5 @@ node_modules
 src/.DS_Store
 .DS_Store
 temp/*.*
+framework/config/config.js
+auth.json
