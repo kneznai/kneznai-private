@@ -1,13 +1,15 @@
-import { ChangePasswordPage } from './changePasswordPage';
-import { LoginPage } from './loginPage';
-import { MainPage } from './mainPage';
-import { TokenPage } from './tokenPage';
+import { NavigateMenu } from './navigateMenu';
+import { NavigateTree } from './navigateTree';
+// import { LoginPage } from './loginPage';
+// import { MainPage } from './mainPage';
+// import { TokenPage } from './tokenPage';
 
 const app = () => ({
-    ChangePasswordPage: () => new ChangePasswordPage(),
-    LoginPage: () => new LoginPage(),
-    MainPage: () => new MainPage(),
-    TokenPage: () => new TokenPage(),
+    NavigateMenu: () => new NavigateMenu(),
+    NavigateTree: () => new NavigateTree(),
+    // LoginPage: () => new LoginPage(),
+    // MainPage: () => new MainPage(),
+    // TokenPage: () => new TokenPage(),
 })
 
 export { app };
