@@ -1,15 +1,11 @@
 import { NavigateMenu } from './navigateMenu';
 import { NavigateTree } from './navigateTree';
-// import { LoginPage } from './loginPage';
-// import { MainPage } from './mainPage';
-// import { TokenPage } from './tokenPage';
+import { NotebookPage } from './notebookPage';
 
 const app = () => ({
     NavigateMenu: () => new NavigateMenu(),
     NavigateTree: () => new NavigateTree(),
-    // LoginPage: () => new LoginPage(),
-    // MainPage: () => new MainPage(),
-    // TokenPage: () => new TokenPage(),
+    NotebookPage: () => new NotebookPage(),
 })
 
 export { app };

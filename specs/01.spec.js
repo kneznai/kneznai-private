@@ -8,12 +8,6 @@ import { clickToNavigate } from '../framework/lib/helpers';
 describe ('notebooks', () => {
     let page;
 
-    const btnPlay = 'button.jp-ToolbarButtonComponent.jp-Button[title="Run the selected cells and advance"]';
-
-    const isFileLoadedStatus = 'Formula Framework | Idle';
-    const isFileLoaded = (fileName) => `//*[contains(@title,'Change kernel for ${fileName}')][contains(text(),'${isFileLoadedStatus}')]`;
-    const isFileBusyStatus = 'Formula Framework | Busy';
-    const isFileBusy = (fileName) => `//*[contains(@title,'Change kernel for ${fileName}')][contains(text(),'${isFileBusyStatus}')]`;
 
     const getCodeCell = (n) => `//div[contains(@class, "jp-Notebook")]//div[contains(@class, "jp-CodeCell")][${n+1}]//div[contains(@class, "jp-Cell-outputWrapper")]`;
 
@@ -26,6 +20,14 @@ describe ('notebooks', () => {
         await run();
         page = await goto(urls.main);
     });
+
+    beforeAll(async () => {
+        await app().NavigateMenu().gotoOneDrive(page);
+
+        const dirs = app().NavigateTree().dirNames;
+        await app().NavigateTree().gotoNotebooks(page, dirs);
+    });
+
 /*
     beforeAll(async () => {
         await app().MainPage().clickLogin(page);
@@ -130,11 +132,6 @@ describe ('notebooks', () => {
 
     it('tests notebook cell by cell', async () => {
 
-        await app().NavigateMenu().gotoOneDrive(page);
-
-        const dirs = app().NavigateTree().dirNames;
-        await app().NavigateTree().gotoNotebooks(page, dirs);
-
         // 4.2 - navigate to next (sub)directory
         await page.waitForSelector('.jp-DirListing-item[title*="JupyterCourseSession1"]');
         await page.dblclick('.jp-DirListing-item[title*="JupyterCourseSession1"]');
@@ -146,36 +143,23 @@ describe ('notebooks', () => {
         await page.waitForSelector(fileSelector);
         await page.dblclick(fileSelector);
         
-        await page.waitForSelector(isFileLoaded(fileName));
+        await page.waitForSelector(app().NotebookPage().isFileLoaded(fileName));
         console.log(10);
         await page.waitForSelector('.jp-Notebook');
 
-
         // run notebook
-        let codeCells = await page.$$('.jp-Notebook .jp-CodeCell');
-
-        let output = '';
-        
+        let codeCells = await app().NotebookPage().getCodeBlocks(page);
+                
         for (let i=0; i<codeCells.length; i++) {
 
             let cell = codeCells[i];
-            await cell.focus();
-            await page.waitForSelector(btnPlay);
-            await page.click(btnPlay);
-            await page.waitForSelector(isFileLoaded(fileName));
+            await app().NotebookPage().runCodeCell(page, cell, fileName);
+            
+            let blockPrefix = `${await app().NotebookPage().getCellIdx(cell)}`;
+            let isError = await app().NotebookPage().getCellError(cell);
 
-            let blockIdx = await cell.$eval('.jp-InputArea-prompt', el => el.innerText);
-            let isError = '';
-
-            try {
-                isError = await cell.$eval('.jp-Cell-outputWrapper [data-mime-type="application/vnd.jupyter.stderr"]', el => {
-                    return (el) ? el.innerText : '';
-                });
-            }
-            catch {};
-        
-            let blockPrefix = `${blockIdx}`;
-
+            // in case of no error the expect will be true(pass) or throw detailed error message into console
+            // along with the failed cell index
             expect(`${blockPrefix}${isError}`).toBe(`${blockPrefix}`);
 
         };
