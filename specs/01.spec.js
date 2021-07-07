@@ -8,9 +8,6 @@ import { clickToNavigate } from '../framework/lib/helpers';
 describe ('notebooks', () => {
     let page;
 
-
-    const getCodeCell = (n) => `//div[contains(@class, "jp-Notebook")]//div[contains(@class, "jp-CodeCell")][${n+1}]//div[contains(@class, "jp-Cell-outputWrapper")]`;
-
     const notebookUrl = config.url;
     const urls = {
         main: notebookUrl,
@@ -28,26 +25,6 @@ describe ('notebooks', () => {
         await app().NavigateTree().gotoNotebooks(page, dirs);
     });
 
-/*
-    beforeAll(async () => {
-        await app().MainPage().clickLogin(page);
-        //const socialButtons = await app().MainPage().checkSocialButtons(page);
-        //expect(socialButtons).to.have.string('Systemorph AAD');
-        await page.waitForSelector('.claims-provider-list-buttons.social .options button#SystemorphAAD');
-        console.log(app().MainPage().socialLogin);
-        await clickToNavigate(page, '.claims-provider-list-buttons.social .options button#SystemorphAAD');
-        await page.waitForSelector('input[name="loginfmt"]');
-        await page.fill('input[name="loginfmt"]', config.email);
-        await clickToNavigate(page, 'input[type="submit"]');
-        await page.waitForSelector('#passwordInput');
-        await page.fill('#passwordInput', config.password);
-        await clickToNavigate(page, '#submitButton');
-        //authentication app
-        await page.waitForSelector('input[type="submit"]');
-        await clickToNavigate(page, 'input[type="submit"]');
-        await page.waitForSelector('svg[data-icon="ui-components:jupyter"]');
-    });
-*/
     afterAll(async () => {
         await stop();        
     });
@@ -130,38 +107,57 @@ describe ('notebooks', () => {
 
     });
 
-    it('tests notebook cell by cell', async () => {
+    let notebookFolder = 'JupyterCourseSession1';
 
-        // 4.2 - navigate to next (sub)directory
-        await page.waitForSelector('.jp-DirListing-item[title*="JupyterCourseSession1"]');
-        await page.dblclick('.jp-DirListing-item[title*="JupyterCourseSession1"]');
+    describe.each([
+        [notebookFolder],
+      ])('folder %j files', (folder) => {
 
-        // 4.3 - wait for and open notebook file
-        console.log(5);
-        const fileName = 'CourseDataImportVideoEx3.ipynb';
-        const fileSelector = `.jp-DirListing-content .jp-DirListing-item[title*="${fileName}"]`;
-        await page.waitForSelector(fileSelector);
-        await page.dblclick(fileSelector);
-        
-        await page.waitForSelector(app().NotebookPage().isFileLoaded(fileName));
-        console.log(10);
-        await page.waitForSelector('.jp-Notebook');
+        beforeEach(async () => {
+            await app().NavigateTree().gotoFolder(page, folder);
+        });
 
-        // run notebook
-        let codeCells = await app().NotebookPage().getCodeBlocks(page);
-                
-        for (let i=0; i<codeCells.length; i++) {
+        let fileNames = [["CourseDataImportVideoEx3.ipynb"]];
+        beforeEach(async () => {
+            fileNames = await app().NavigateTree().getFolderFiles(page);
+        });
 
-            let cell = codeCells[i];
-            await app().NotebookPage().runCodeCell(page, cell, fileName);
-            
-            let blockPrefix = `${await app().NotebookPage().getCellIdx(cell)}`;
-            let isError = await app().NotebookPage().getCellError(cell);
+        // afterEach(async () => {
+        //     await app().NavigateTree().gotoFolderUp(page);
+        // });
 
-            // in case of no error the expect will be true(pass) or throw detailed error message into console
-            // along with the failed cell index
-            expect(`${blockPrefix}${isError}`).toBe(`${blockPrefix}`);
+        describe.each(fileNames)('file %j', (fileName) => {
 
-        };
+            beforeEach(async () => {
+                // 4.3 - wait for and open notebook file
+                console.log(5);
+                await app().NavigateTree().gotoFile(page, fileName);
+            });
+
+            it('tests notebook cell by cell', async () => {
+
+                await page.waitForSelector(app().NotebookPage().isFileLoaded(fileName));
+                console.log(10);
+                await page.waitForSelector('.jp-Notebook');
+
+                // run notebook
+                let codeCells = await app().NotebookPage().getCodeBlocks(page);
+                        
+                for (let i=0; i<codeCells.length; i++) {
+
+                    let cell = codeCells[i];
+                    await app().NotebookPage().runCodeCell(page, cell, fileName);
+                    
+                    let blockPrefix = `${await app().NotebookPage().getCellIdx(cell)}`;
+                    let isError = await app().NotebookPage().getCellError(cell);
+
+                    // in case of no error the expect will be true(pass) or throw detailed error message into console
+                    // along with the failed cell index
+                    expect(`${blockPrefix}${isError}`).toBe(`${blockPrefix}`);
+
+                };
+            });
+
+        });
     });
 })
