@@ -1,0 +1,33 @@
+[{
+   "name":"Educational Notebooks",
+   "type":"folder",
+   "children":[
+      {
+         "name":"JupyterCourseSession1",
+         "type":"folder",
+         "children":[
+            {
+               "name":"CourseDataImportVideoEx3.ipynb",
+               "type":"file",
+               "children":[
+                  
+               ]
+            },
+            {
+               "name":"CourseDataImportVideoEx2.ipynb",
+               "type":"file",
+               "children":[
+                  
+               ]
+            },
+            {
+               "name":"CourseDataImportVideoEx1.ipynb",
+               "type":"file",
+               "children":[
+                  
+               ]
+            }
+         ]
+      }
+   ]
+}]

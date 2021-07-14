@@ -5,6 +5,24 @@ import { clickToNavigate } from '../framework/lib/helpers';
 // import chai from 'chai';
 // const { expect } = chai;
 
+function loadTree(filename) {
+    const fs = require('fs'); 
+    const path = require('path');
+
+    const folderPath = path.join(__dirname, '../', filename);
+    
+    let folderTree = fs.readFileSync(folderPath, {encoding:'utf8', flag:'r'});
+    
+    return JSON.parse(folderTree);
+}
+
+let folderTree;
+let notebookFolders = [];
+
+folderTree = loadTree('folders.json');
+const topFolder = app().NavigateTree().dirNames.children.name;
+notebookFolders = folderTree.filter((entry) => entry.name === topFolder)[0].children.map((m) => [m.name, m.children]);
+
 describe ('notebooks', () => {
     let page;
 
@@ -23,6 +41,12 @@ describe ('notebooks', () => {
 
         const dirs = app().NavigateTree().dirNames;
         await app().NavigateTree().gotoNotebooks(page, dirs);
+    });
+
+    beforeAll(() => {
+        // folderTree = loadTree('folders.json');
+        // const topFolder = app().NavigateTree().dirNames.children.name;
+        // notebookFolders = folderTree.filter((entry) => entry.name === topFolder)[0].children.map((m) => [m]);
     });
 
     afterAll(async () => {
@@ -107,46 +131,60 @@ describe ('notebooks', () => {
 
     });
 
-    let notebookFolder = 'JupyterCourseSession1';
-
-    describe.each([
-        [notebookFolder],
-      ])('folder %j files', (folder) => {
+    //let notebookFolder = 'JupyterCourseSession1';
+    
+    describe.each(
+        notebookFolders,
+      )('folder %j files', (folderName, children) => {
 
         beforeEach(async () => {
-            await app().NavigateTree().gotoFolder(page, folder);
+            console.log(folderName);
+            await app().NavigateTree().gotoFolder(page, folderName);
         });
 
-        let fileNames = [["CourseDataImportVideoEx3.ipynb"]];
-        beforeEach(async () => {
-            fileNames = await app().NavigateTree().getFolderFiles(page);
-        });
-
-        // afterEach(async () => {
-        //     await app().NavigateTree().gotoFolderUp(page);
+        // let fileNames = [["CourseDataImportVideoEx3.ipynb"]];
+        // beforeEach(async () => {
+        //     fileNames = await app().NavigateTree().getFolderFiles(page);
         // });
+
+        afterEach(async () => {
+            await app().NavigateTree().gotoFolderUp(page);
+        });
+
+        //let fileNames = [["CourseDataImportVideoEx3.ipynb"]];
+        let fileNames = children.map(m => [m.name]);
 
         describe.each(fileNames)('file %j', (fileName) => {
 
+            beforeAll(async () => {
+                //fileNames = await app().NavigateTree().getFolderFiles(page);
+            });
+
             beforeEach(async () => {
                 // 4.3 - wait for and open notebook file
-                console.log(5);
+                // console.log('5: '+ fileName);
                 await app().NavigateTree().gotoFile(page, fileName);
+            });
+
+            afterEach(async () => {
+                await app().NotebookPage().closeFile(page, fileName);
+                await app().NotebookPage().closeDialog(page);
             });
 
             it('tests notebook cell by cell', async () => {
 
                 await page.waitForSelector(app().NotebookPage().isFileLoaded(fileName));
-                console.log(10);
                 await page.waitForSelector('.jp-Notebook');
 
                 // run notebook
+                let tabId = await app().NotebookPage().getTabId(page, fileName);
                 let codeCells = await app().NotebookPage().getCodeBlocks(page);
+                // console.log(codeCells.length); number of code cells               
                         
                 for (let i=0; i<codeCells.length; i++) {
 
                     let cell = codeCells[i];
-                    await app().NotebookPage().runCodeCell(page, cell, fileName);
+                    await app().NotebookPage().runCodeCell(page, cell, fileName, tabId);
                     
                     let blockPrefix = `${await app().NotebookPage().getCellIdx(cell)}`;
                     let isError = await app().NotebookPage().getCellError(cell);
@@ -156,6 +194,7 @@ describe ('notebooks', () => {
                     expect(`${blockPrefix}${isError}`).toBe(`${blockPrefix}`);
 
                 };
+
             });
 
         });

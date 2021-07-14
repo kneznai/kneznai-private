@@ -11,8 +11,8 @@ async function goto(url){
 async function run() {
     browser = await playwright.chromium.launch({
         headless: false,
-        slowMo: 2000,
-        timeout: 50000,
+        slowMo: 500,
+        timeout: 3000,
     });
     
     const options = {
