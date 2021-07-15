@@ -8,11 +8,12 @@ const NavigateTree = function () {
             children: {},
         }
     };
-    const dirSelector = (name) => `.jp-DirListing-item[title*="${name}"]`;
-    const notebookFolderSelector = (name) => `.jp-DirListing-item[title*="${name}"]`;
+
     const breadcrumb = () => `#OneDriveBrowser .jp-FileBrowser-crumbs .jp-BreadCrumbs-item[title="${this.dirNames.name}/${this.dirNames.children.name}"]`;
-    const fileSelector = (fileName) => `.jp-DirListing-content .jp-DirListing-item[title*="${fileName}"]`;
+    const dirSelector = (name) => `.jp-DirListing-item[title*="${name}"]`;
     const fileNamesSelector = '.jp-DirListing-content .jp-DirListing-item .jp-DirListing-itemText';
+    const fileSelector = (fileName) => `.jp-DirListing-content .jp-DirListing-item[title*="${fileName}"]`;
+    const notebookFolderSelector = (name) => `.jp-DirListing-item[title*="${name}"]`;
 
     this.gotoNotebooks = async function (page, dirs) {
         // 4 - wait for navigation tree to show and open core directory

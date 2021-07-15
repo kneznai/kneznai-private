@@ -1,9 +1,6 @@
 import { goto, run, stop } from '../framework/lib/driver/browser';
 import { config } from '../framework/config/config';
 import { app } from '../framework/pages/index';
-import { clickToNavigate } from '../framework/lib/helpers';
-// import chai from 'chai';
-// const { expect } = chai;
 
 function loadTree(filename) {
     const fs = require('fs'); 

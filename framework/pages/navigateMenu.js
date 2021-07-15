@@ -1,10 +1,8 @@
-//import { clickToNavigate, getInlineInfo } from '../lib/helpers';
-
 const NavigateMenu = function () {
-    const btnTopPanel = '#jp-top-panel';
     const btnOneDrive = 'li[title="OneDrive"]';
-    const clsMenuActive = 'lm-mod-current';
     const btnOneDriveLogin = '.jp-OneDriveLogin button';
+    const btnTopPanel = '#jp-top-panel';
+    const clsMenuActive = 'lm-mod-current';
     const oneDriveTreePanel = '#OneDriveBrowser';
     
     this.gotoOneDrive = async function (page) {
