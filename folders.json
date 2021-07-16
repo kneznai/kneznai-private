@@ -3,6 +3,19 @@
    "type":"folder",
    "children":[
       {
+         "name":"NonExistingFolder",
+         "type":"folder",
+         "children":[
+            {
+               "name":"NonExisting.ipynb",
+               "type":"file",
+               "children":[
+                  
+               ]
+            }
+         ]
+      },
+      {
          "name":"JupyterCourseSession1",
          "type":"folder",
          "children":[

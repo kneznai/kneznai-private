@@ -1,13 +1,14 @@
 const NotebookPage = function () {
 
+    const btnCloseNotebook = (fileName) => `li.lm-TabBar-tab[title*="Name: ${fileName}"] .lm-TabBar-tabCloseIcon`;
+    const btnDiscard = '.jp-Dialog button.jp-Dialog-button.jp-mod-warn';
     const btnPlay = (id) => `div#${id} button.jp-ToolbarButtonComponent.jp-Button[title="Run the selected cells and advance"]`;
+    const clsErrorOutput = '.jp-Cell-outputWrapper [data-mime-type="application/vnd.jupyter.stderr"]';
     const divCodeCell = '.jp-Notebook .jp-CodeCell';
     const divCellIdx = '.jp-InputArea-prompt';
-    const clsErrorOutput = '.jp-Cell-outputWrapper [data-mime-type="application/vnd.jupyter.stderr"]';
-    const btnCloseNotebook = (fileName) => `li.lm-TabBar-tab[title*="Name: ${fileName}"] .lm-TabBar-tabCloseIcon`;
     const tabNotebook = (fileName) => `li.lm-TabBar-tab[title*="Name: ${fileName}"]`;
     //const tabNotebook = (fileName) => `.jp-DirListing-content`;
-    const btnDiscard = '.jp-Dialog button.jp-Dialog-button.jp-mod-warn';
+    
 
     this.fileStatus = {
         Loaded: 'Formula Framework | Idle',
@@ -24,23 +25,45 @@ const NotebookPage = function () {
         return await page.$$(divCodeCell);
     };
 
-    this.runCodeCell = async function (page, cell, fileName, tabId) {
-        await cell.focus();
-        await page.waitForSelector(btnPlay(tabId));
-        await page.click(btnPlay(tabId));
-
-        let isBusy = '';
+    this.ifElementAction = async function (page, sel, action) {
+        let isElement = '';
         try {
-            const busySelector = this.isFileBusy(fileName);
-            isBusy = await page.$eval(busySelector, el => {
+            isElement = await page.$eval(sel, el => {
                 return (el) ? el.innerText : '';
             });
         }
         catch {};
 
-        if (isBusy) {
-            await page.waitForSelector(this.isFileLoaded(fileName));
-        };        
+        if (isElement) {
+            return await action(this);
+        };  
+    };
+
+    this.runCodeCell = async function (page, cell, fileName, tabId) {
+        await cell.focus();
+        await page.waitForSelector(btnPlay(tabId));
+        await page.click(btnPlay(tabId));
+
+        await this.ifElementAction(
+            page,
+            this.isFileBusy(fileName),
+            async function (that) {
+                await page.waitForSelector(that.isFileLoaded(fileName));
+            }
+        )
+
+        // let isBusy = '';
+        // try {
+        //     const busySelector = this.isFileBusy(fileName);
+        //     isBusy = await page.$eval(busySelector, el => {
+        //         return (el) ? el.innerText : '';
+        //     });
+        // }
+        // catch {};
+
+        // if (isBusy) {
+        //     await page.waitForSelector(this.isFileLoaded(fileName));
+        // };        
     };
 
     this.getTabId = async function (page, fileName) {
@@ -56,18 +79,26 @@ const NotebookPage = function () {
     };
 
     this.closeDialog = async function (page) {
-        let isDialog = '';
-        try {
-            isDialog = await page.$eval(btnDiscard, el => {
-                return (el) ? el.innerText : '';
+        await this.ifElementAction(
+            page,
+            btnDiscard,
+            async function (that) {
+                await page.waitForSelector(btnDiscard);
+                await page.click(btnDiscard);
             });
-        }
-        catch {};
 
-        if (isDialog) {
-            await page.waitForSelector(btnDiscard);
-            await page.click(btnDiscard);
-        };
+        // let isDialog = '';
+        // try {
+        //     isDialog = await page.$eval(btnDiscard, el => {
+        //         return (el) ? el.innerText : '';
+        //     });
+        // }
+        // catch {};
+
+        // if (isDialog) {
+        //     await page.waitForSelector(btnDiscard);
+        //     await page.click(btnDiscard);
+        // };
     };
 
     this.getCellIdx = async function(cell) {

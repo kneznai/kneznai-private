@@ -1,6 +1,8 @@
 import { goto, run, stop } from '../framework/lib/driver/browser';
 import { config } from '../framework/config/config';
 import { app } from '../framework/pages/index';
+import { ifElement } from '../framework/lib/helpers/ifElementAction';
+// import { expect } from 'chai';
 
 function loadTree(filename) {
     const fs = require('fs'); 
@@ -133,7 +135,13 @@ describe ('notebooks', () => {
     describe.each(
         notebookFolders,
       )('folder %j files', (folderName, children) => {
+        //let isFolder = ifElement(page, app().NavigateTree().notebookFolderSelector(folderName));
+        let isFolder = true;
 
+        beforeEach(async () => {
+            isFolder = await ifElement(page, app().NavigateTree().notebookFolderSelector(folderName));
+        });
+        
         beforeEach(async () => {
             console.log(folderName);
             await app().NavigateTree().gotoFolder(page, folderName);
@@ -148,52 +156,65 @@ describe ('notebooks', () => {
             await app().NavigateTree().gotoFolderUp(page);
         });
 
-        //let fileNames = [["CourseDataImportVideoEx3.ipynb"]];
-        let fileNames = children.map(m => [m.name]);
-
-        describe.each(fileNames)('file %j', (fileName) => {
-
-            beforeAll(async () => {
-                //fileNames = await app().NavigateTree().getFolderFiles(page);
-            });
-
-            beforeEach(async () => {
-                // 4.3 - wait for and open notebook file
-                // console.log('5: '+ fileName);
-                await app().NavigateTree().gotoFile(page, fileName);
-            });
-
-            afterEach(async () => {
-                await app().NotebookPage().closeFile(page, fileName);
-                await app().NotebookPage().closeDialog(page);
-            });
-
-            it('tests notebook cell by cell', async () => {
-
-                await page.waitForSelector(app().NotebookPage().isFileLoaded(fileName));
-                await page.waitForSelector('.jp-Notebook');
-
-                // run notebook
-                let tabId = await app().NotebookPage().getTabId(page, fileName);
-                let codeCells = await app().NotebookPage().getCodeBlocks(page);
-                // console.log(codeCells.length); number of code cells               
-                        
-                for (let i=0; i<codeCells.length; i++) {
-
-                    let cell = codeCells[i];
-                    await app().NotebookPage().runCodeCell(page, cell, fileName, tabId);
-                    
-                    let blockPrefix = `${await app().NotebookPage().getCellIdx(cell)}`;
-                    let isError = await app().NotebookPage().getCellError(cell);
-
-                    // in case of no error the expect will be true(pass) or throw detailed error message into console
-                    // along with the failed cell index
-                    expect(`${blockPrefix}${isError}`).toBe(`${blockPrefix}`);
-
-                };
-
-            });
-
+        it('Check folder exists', () => {
+            expect(isFolder).toBeTruthy();
         });
+
+        const describeIf = (isFolder) ? describe.each : describe.skip.each;
+        if (isFolder) {
+            //let fileNames = [["CourseDataImportVideoEx3.ipynb"]];
+            let fileNames = children.map(m => [m.name]);
+
+            describeIf(fileNames)('file %j', (fileName) => {
+                //let isFile = true;
+
+                beforeAll(async () => {
+                    //fileNames = await app().NavigateTree().getFolderFiles(page);
+                });
+
+                beforeEach(async () => {
+                    // 4.3 - wait for and open notebook file
+                    // console.log('5: '+ fileName);
+                    //isFile = await ifElement(page, app().NavigateTree().getFileSelector(fileName));
+                    //if (isFolder && isFile) {
+                        await app().NavigateTree().gotoFile(page, fileName);
+                    //};
+                });
+
+                afterEach(async () => {
+                    // if (isFolder && isFile) {
+                        await app().NotebookPage().closeFile(page, fileName);
+                        await app().NotebookPage().closeDialog(page);
+                    // };
+                });
+
+                it('tests notebook cell by cell', async () => {
+                    
+                    await page.waitForSelector(app().NotebookPage().isFileLoaded(fileName));
+                    await page.waitForSelector('.jp-Notebook');
+
+                    // run notebook
+                    let tabId = await app().NotebookPage().getTabId(page, fileName);
+                    let codeCells = await app().NotebookPage().getCodeBlocks(page);
+                    // console.log(codeCells.length); number of code cells               
+                            
+                    for (let i=0; i<codeCells.length; i++) {
+
+                        let cell = codeCells[i];
+                        await app().NotebookPage().runCodeCell(page, cell, fileName, tabId);
+                        
+                        let blockPrefix = `${await app().NotebookPage().getCellIdx(cell)}`;
+                        let isError = await app().NotebookPage().getCellError(cell);
+
+                        // in case of no error the expect will be true(pass) or throw detailed error message into console
+                        // along with the failed cell index
+                        expect(`${blockPrefix}${isError}`).toBe(`${blockPrefix}`);
+
+                    }
+
+                });
+
+            });
+      }
     });
 })

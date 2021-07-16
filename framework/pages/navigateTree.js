@@ -1,4 +1,4 @@
-//import { clickToNavigate, getInlineInfo } from '../lib/helpers';
+import { ifElementAction } from '../lib/helpers/ifElementAction';
 
 const NavigateTree = function () {
     this.dirNames = {
@@ -12,8 +12,8 @@ const NavigateTree = function () {
     const breadcrumb = () => `#OneDriveBrowser .jp-FileBrowser-crumbs .jp-BreadCrumbs-item[title="${this.dirNames.name}/${this.dirNames.children.name}"]`;
     const dirSelector = (name) => `.jp-DirListing-item[title*="${name}"]`;
     const fileNamesSelector = '.jp-DirListing-content .jp-DirListing-item .jp-DirListing-itemText';
-    const fileSelector = (fileName) => `.jp-DirListing-content .jp-DirListing-item[title*="${fileName}"]`;
-    const notebookFolderSelector = (name) => `.jp-DirListing-item[title*="${name}"]`;
+    this.getFileSelector = (fileName) => `.jp-DirListing-content .jp-DirListing-item[title*="${fileName}"]`;
+    this.notebookFolderSelector = (name) => `.jp-DirListing-item[title*="${name}"]`;
 
     this.gotoNotebooks = async function (page, dirs) {
         // 4 - wait for navigation tree to show and open core directory
@@ -27,8 +27,14 @@ const NavigateTree = function () {
 
     this.gotoFolder = async function (page, folder) {
         // 4.2 - navigate to next (sub)directory
-        await page.waitForSelector(notebookFolderSelector(folder));
-        await page.dblclick(notebookFolderSelector(folder));
+        const folderSelector = this.notebookFolderSelector(folder);
+        await ifElementAction(
+            page,
+            folderSelector,
+            async function () {
+                await page.waitForSelector(folderSelector);
+                await page.dblclick(folderSelector);
+            })
     };
 
     this.gotoFolderUp = async function (page) {
@@ -37,8 +43,14 @@ const NavigateTree = function () {
     };
 
     this.gotoFile = async function (page, fileName) {
-        await page.waitForSelector(fileSelector(fileName));
-        await page.dblclick(fileSelector(fileName));
+        const fileSelector = this.getFileSelector(fileName);
+        await ifElementAction(
+            page,
+            fileSelector,
+            async function () {
+                await page.waitForSelector(fileSelector);
+                await page.dblclick(fileSelector);
+            })
     };
 
     this.getFolderFiles = async function (page) {
