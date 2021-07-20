@@ -23,7 +23,7 @@ const NavigateTree = function () {
         // 4.1 - navigate to next (sub)directory
         await page.waitForSelector(dirSelector(this.dirNames.children.name));
         console.log(this.dirNames.children.name);
-        
+
         await page.dblclick(dirSelector(this.dirNames.children.name));
     };
 
@@ -66,9 +66,6 @@ const NavigateTree = function () {
             fileNames.push(itemText);
         };
 
-        //('.jp-DirListing-content .jp-DirListing-item .jp-DirListing-itemText')[0]
-        //const fileNames =  await page.$$eval(fileNamesSelector, el => el.innerText);
-        console.log(fileNames);
         return fileNames.filter(s => s.indexOf(".ipynb") > 0).map(f =>[f]);
     };
 }
