@@ -1,4 +1,5 @@
 const NavigateMenu = function () {
+    const btnLogOutIcon = 'button .jp-OneDriveLogout';
     const btnOneDrive = 'li[title="OneDrive"]';
     const btnOneDriveLogin = '.jp-OneDriveLogin button';
     const btnTopPanel = '#jp-top-panel';
@@ -26,7 +27,7 @@ const NavigateMenu = function () {
         await page.waitForSelector(btnOneDriveLogin);
         await page.click(btnOneDriveLogin);
         //console.log('logged in oneDrive');
-        await page.waitForSelector(btnTopPanel);
+        await page.waitForSelector(btnLogOutIcon);
         //console.log('11');
 
         // 3 - loading screen and click again on OneDrive menu

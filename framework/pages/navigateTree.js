@@ -15,19 +15,23 @@ const NavigateTree = function () {
     this.getFileSelector = (fileName) => `.jp-DirListing-content .jp-DirListing-item[title*="${fileName}"]`;
     this.notebookFolderSelector = (name) => `.jp-DirListing-item[title*="${name}"]`;
 
-    this.gotoNotebooks = async function (page, dirs) {
+    this.gotoNotebooks = async function (page) {
         // 4 - wait for navigation tree to show and open core directory
-        await page.waitForSelector(dirSelector(dirs.name));
-        await page.dblclick(dirSelector(dirs.name));
+        await page.waitForSelector(dirSelector(this.dirNames.name));
+        await page.dblclick(dirSelector(this.dirNames.name));
 
         // 4.1 - navigate to next (sub)directory
-        await page.waitForSelector(dirSelector(dirs.children.name));
-        await page.dblclick(dirSelector(dirs.children.name));
+        await page.waitForSelector(dirSelector(this.dirNames.children.name));
+        console.log(this.dirNames.children.name);
+        
+        await page.dblclick(dirSelector(this.dirNames.children.name));
     };
 
     this.gotoFolder = async function (page, folder) {
         // 4.2 - navigate to next (sub)directory
         const folderSelector = this.notebookFolderSelector(folder);
+        console.log(folderSelector);
+
         await ifElementAction(
             page,
             folderSelector,
