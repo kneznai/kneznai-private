@@ -36,27 +36,18 @@ describe ('notebooks', () => {
 
     beforeAll(async () => {
         await app().NavigateMenu().gotoOneDrive(page);
-
-        const dirs = app().NavigateTree().dirNames;
-        await app().NavigateTree().gotoNotebooks(page, dirs);
+        await app().NavigateTree().gotoNotebooks(page);
     });
 
     afterAll(async () => {
         await stop();        
     });
-
-    xit('tests authorization', async () => {
-        const expectedUrl = `${config.url}user/${config.user}/lab`;
-        const urlJupyter = await page.url();
-        expect(urlJupyter).to.have.string(expectedUrl);
-    })
     
     describe.each(
         notebookFolders,
       )('folder %j files', (folderName, children) => {
         
         beforeAll(async () => {
-            console.log(folderName);
             await app().NavigateTree().gotoFolder(page, folderName);
         });
 
@@ -90,8 +81,7 @@ describe ('notebooks', () => {
 
                 // run notebook
                 let tabId = await app().NotebookPage().getTabId(page, fileName);
-                let codeCells = await app().NotebookPage().getCodeBlocks(page);
-                // console.log(codeCells.length); number of code cells               
+                let codeCells = await app().NotebookPage().getCodeBlocks(page);          
                         
                 for (let i=0; i<codeCells.length; i++) {
 

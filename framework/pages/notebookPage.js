@@ -8,16 +8,16 @@ const NotebookPage = function () {
     const divCellIdx = '.jp-InputArea-prompt';
     const tabNotebook = (fileName) => `li.lm-TabBar-tab[title*="Name: ${fileName}"]`;    
 
-    this.fileStatus = {
+    const fileStatus = {
         Loaded: 'Formula Framework | Idle',
         Busy: 'Formula Framework | Busy',
     };
 
-    this.checkStatus = (fileName, status) => {
+    const checkStatus = (fileName, status) => {
         return `//*[contains(@title,'Change kernel for ${fileName}')][contains(text(),'${status}')]`;
     };
-    this.isFileLoaded = (fileName) => this.checkStatus(fileName, this.fileStatus.Loaded);
-    this.isFileBusy = (fileName) => this.checkStatus(fileName, this.fileStatus.Busy);
+    this.isFileLoaded = (fileName) => checkStatus(fileName, fileStatus.Loaded);
+    this.isFileBusy = (fileName) => checkStatus(fileName, fileStatus.Busy);
 
     this.getCodeBlocks = async function (page) {
         return await page.$$(divCodeCell);

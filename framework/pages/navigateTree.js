@@ -22,15 +22,12 @@ const NavigateTree = function () {
 
         // 4.1 - navigate to next (sub)directory
         await page.waitForSelector(dirSelector(this.dirNames.children.name));
-        console.log(this.dirNames.children.name);
-
         await page.dblclick(dirSelector(this.dirNames.children.name));
     };
 
     this.gotoFolder = async function (page, folder) {
         // 4.2 - navigate to next (sub)directory
         const folderSelector = this.notebookFolderSelector(folder);
-        console.log(folderSelector);
 
         await ifElementAction(
             page,
