@@ -96,5 +96,13 @@ const NotebookPage = function () {
 
         return isError;
     };
+
+    this.getTime = async function() {
+        let today = new Date();
+        let time = today.getHours() + '0' + today.getMinutes() + '0'+ today.getSeconds();
+        console.log("time: " + time);
+    
+        return time;
+    };
 }
 export { NotebookPage };

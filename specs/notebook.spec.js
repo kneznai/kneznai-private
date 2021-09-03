@@ -55,9 +55,9 @@ describe ('notebooks', () => {
             await app().NavigateTree().gotoFolderUp(page);
         });
 
-        it('Check folder exists', async () => {
-            let isFolder = await ifElement(page, app().NavigateTree().notebookFolderSelector(folderName));
-            expect(isFolder).toBeTruthy();
+        it('Check folder exists', () => {
+            //let isFolder = await ifElement(page, app().NavigateTree().notebookFolderSelector(folderName));
+            expect(ifElement(page, app().NavigateTree().notebookFolderSelector(folderName))).toBeTruthy();
         });
 
         let fileNames = children.map(m => [m.name]);
@@ -96,6 +96,10 @@ describe ('notebooks', () => {
                     expect(`${blockPrefix}${isError}`).toBe(`${blockPrefix}`);
 
                 }
+                
+                //screenshots
+                const tempTime = await app().NotebookPage().getTime();
+                await page.screenshot({ path: 'screenshot' + tempTime + '.png', fullPage: true });
 
             });
 

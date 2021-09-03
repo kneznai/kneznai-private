@@ -19,6 +19,12 @@ async function run() {
         storageState: 'auth.json',
     };
 
+    const config = {
+        use: {
+          screenshot: 'on',
+        },
+    };
+
     context = await browser.newContext(options);
     page = await context.newPage();
     return page;
